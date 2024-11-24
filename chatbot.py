@@ -19,7 +19,6 @@ from diffusers import StableDiffusion3Pipeline
 from huggingface_hub import InferenceClient
 from transformers import pipeline
 from PIL import Image
-import spaces
 from functools import lru_cache
 import cv2
 import re

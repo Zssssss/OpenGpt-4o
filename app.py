@@ -1,10 +1,9 @@
 import gradio as gr
-import spaces
-from chatbot import model_inference, EXAMPLES, chatbot
-from voice_chat import respond
-from MyChatInterface import MyChatInterface
+# from chatbot import model_inference, EXAMPLES, chatbot
+# from voice_chat import respond
+# from MyChatInterface import MyChatInterface
 from groq import Groq
-
+GROP_API_KEY = "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"
 # Define Gradio theme
 theme = gr.themes.Soft(
     primary_hue="sky",
@@ -17,28 +16,28 @@ theme = gr.themes.Soft(
 # Create Gradio blocks for different functionalities
 
 # Chat interface block
-with gr.Blocks(
-        css=""".gradio-container .avatar-container {height: 40px width: 40px !important;} #duplicate-button {margin: auto; color: white; background: #f1a139; border-radius: 100vh; margin-top: 2px; margin-bottom: 2px;}""",
-) as chat:
-    gr.Markdown("### Image Chat, Image Generation, Image classification and Normal Chat")
-    # gr.ChatInterface(
-    #     fn=model_inference,
-    #     chatbot = chatbot,
-    #     examples=EXAMPLES,
-    #     multimodal=True,
-    #     cache_examples=False,
-    #     autofocus=False,
-    #     concurrency_limit=10,
-    # )
-    MyChatInterface(
-        fn=model_inference,
-        chatbot = chatbot,
-        examples=EXAMPLES,
-        multimodal=True,
-        cache_examples=False,
-        autofocus=False,
-        concurrency_limit=10,
-    )
+# with gr.Blocks(
+#         css=""".gradio-container .avatar-container {height: 40px width: 40px !important;} #duplicate-button {margin: auto; color: white; background: #f1a139; border-radius: 100vh; margin-top: 2px; margin-bottom: 2px;}""",
+# ) as chat:
+#     gr.Markdown("### Image Chat, Image Generation, Image classification and Normal Chat")
+#     # gr.ChatInterface(
+#     #     fn=model_inference,
+#     #     chatbot = chatbot,
+#     #     examples=EXAMPLES,
+#     #     multimodal=True,
+#     #     cache_examples=False,
+#     #     autofocus=False,
+#     #     concurrency_limit=10,
+#     # )
+#     MyChatInterface(
+#         fn=model_inference,
+#         chatbot = chatbot,
+#         examples=EXAMPLES,
+#         multimodal=True,
+#         cache_examples=False,
+#         autofocus=False,
+#         concurrency_limit=10,
+#     )
 
 # Voice chat block
 # with gr.Blocks() as voice:
@@ -46,7 +45,8 @@ with gr.Blocks(
 #     gr.HTML("<a href='https://huggingface.co/spaces/KingNish/Voicee'>https://huggingface.co/spaces/KingNish/Voicee</a>")
 def transcribe_and_stream(inputs, model_name="groq_whisper", show_info="show_info", language="english"):
     def groq_whisper_tts(filename):
-        groq_client = Groq(api_key=GROQ_API_KEY)
+        ###TODO提升识别速度
+        groq_client = Groq(api_key=GROP_API_KEY)
         with open(filename, "rb") as file:
             transcriptions = groq_client.audio.transcriptions.create(
             file=(filename, file.read()), 
@@ -60,7 +60,7 @@ def transcribe_and_stream(inputs, model_name="groq_whisper", show_info="show_inf
     
     if inputs is not None and inputs!="":
         if show_info=="show_info":
-            gr.Info("Processing Audio", duration=1)
+            gr.Info("Processing Audio")
         text = groq_whisper_tts(inputs)
         
         # stream text output
@@ -72,8 +72,9 @@ def transcribe_and_stream(inputs, model_name="groq_whisper", show_info="show_inf
         return ""
 
 def aya_speech_text_response(text):
+    ###TODO 改这里的prompt和addiional instruction
     if text is not None and text!="":
-        groq_client = Groq(api_key=GROQ_API_KEY)
+        groq_client = Groq(api_key=GROP_API_KEY)
         stream = groq_client.chat.completions.create(
             model="llama3-70b-8192",
             messages=[    ####改为self.messages  TODO
@@ -174,20 +175,22 @@ with gr.Blocks() as voice:
     clear_button_microphone.click(lambda: None, None, e2e_audio_file_aya_response)
     clear_button_microphone.click(lambda: None, None, e2e_audio_file_trans)
 
-with gr.Blocks() as image:
-    gr.HTML("<iframe src='https://kingnish-image-gen-pro.hf.space' width='100%' height='2000px' style='border-radius: 8px;'></iframe>")
+# with gr.Blocks() as image:
+#     gr.HTML("<iframe src='https://kingnish-image-gen-pro.hf.space' width='100%' height='2000px' style='border-radius: 8px;'></iframe>")
 
-with gr.Blocks() as instant2:
-    gr.HTML("<iframe src='https://kingnish-instant-video.hf.space' width='100%' height='3000px' style='border-radius: 8px;'></iframe>")
+# with gr.Blocks() as instant2:
+#     gr.HTML("<iframe src='https://kingnish-instant-video.hf.space' width='100%' height='3000px' style='border-radius: 8px;'></iframe>")
 
-with gr.Blocks() as video:
-    gr.Markdown("""More Models are coming""")
-    gr.TabbedInterface([ instant2], ['Instant🎥'])     
+# with gr.Blocks() as video:
+#     gr.Markdown("""More Models are coming""")
+#     gr.TabbedInterface([ instant2], ['Instant🎥'])     
 
 # Main application block
 with gr.Blocks(theme=theme, title="OpenGPT 4o DEMO") as demo:
     gr.Markdown("# OpenGPT 4o")
-    gr.TabbedInterface([chat, voice, image, video], ['💬 SuperChat','🗣️ Voice Chat', '🖼️ Image Engine', '🎥 Video Engine'])
+    # gr.TabbedInterface([chat, voice, image, video], ['💬 SuperChat','🗣️ Voice Chat', '🖼️ Image Engine', '🎥 Video Engine'])
+    
+    gr.TabbedInterface([voice], ['💬 SuperChat','🗣️ Voice Chat', '🖼️ Image Engine', '🎥 Video Engine'])
 
 demo.queue(max_size=300)
 # demo.launch(share=True)
